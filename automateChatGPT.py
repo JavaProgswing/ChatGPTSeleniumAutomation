@@ -95,7 +95,7 @@ def print_prompt_response(prompt):
         n = n + 2
         print("\rTimeout: ChatGPT did not respond in time!")
         return
-    if type(response) != str:
+    if response is str:
         print("\rAn unexpected error occurred, try again!")
         return
     print(f"\r{response:<33}")
