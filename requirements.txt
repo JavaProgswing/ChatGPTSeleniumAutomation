@@ -1,0 +1,2 @@
+selenium == 4.23.1
+selenium-profiles == 2.2.10
