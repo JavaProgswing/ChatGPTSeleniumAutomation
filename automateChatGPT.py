@@ -32,35 +32,18 @@ driver = Chrome(
     uc_driver=False,
 )
 
-
-class TextStabilized:
-    def __init__(self, locator, timeout, interval=1):
-        self.locator = locator
-        self.timeout = timeout
-        self.interval = interval
-
-    def __call__(self, driver):
-        end_time = time.time() + self.timeout
-        last_text = None
-        while time.time() < end_time:
-            element = driver.find_element(*self.locator)
-            current_text = element.text
-            if last_text == current_text:
-                return current_text
-            last_text = current_text
-            time.sleep(self.interval)
-        return False
-
-
 driver.get("https://chatgpt.com")
 n = 3
 RESPONSE_TIMEOUT = 60  # Timeout for waiting for ChatGPT's response
 
 
 def wait_until_loaded():
-    WebDriverWait(driver, -1).until(
-        EC.presence_of_element_located((By.ID, "prompt-textarea"))
-    )
+    try:
+        WebDriverWait(driver, 60).until(
+            EC.presence_of_element_located((By.ID, "prompt-textarea"))
+        )
+    except:
+        wait_until_loaded()
 
 
 def print_prompt_response(prompt):
@@ -82,23 +65,26 @@ def print_prompt_response(prompt):
     try:
         response = WebDriverWait(driver, RESPONSE_TIMEOUT).until(
             EC.presence_of_element_located(
-                (By.CSS_SELECTOR, f"div[data-testid='conversation-turn-{n}']")
+                (By.CSS_SELECTOR, f"article[data-testid='conversation-turn-{n}']")
             )
         )
-        response = WebDriverWait(driver, RESPONSE_TIMEOUT + 5).until(
-            TextStabilized(
-                (By.CSS_SELECTOR, f"div[data-testid='conversation-turn-{n}']"),
-                RESPONSE_TIMEOUT,
-            )
-        )
+        time.sleep(1)
+        while(driver.find_elements(By.CSS_SELECTOR, "div.result-streaming")):
+            time.sleep(0.25)
     except TimeoutException:
         n = n + 2
         print("\rTimeout: ChatGPT did not respond in time!")
         return
-    if response is str:
-        print("\rAn unexpected error occurred, try again!")
-        return
-    print(f"\r{response:<33}")
+    
+    response = response.text
+    if "You’re giving feedback on a new version of ChatGPT." in response:
+        response = response.replace("You’re giving feedback on a new version of ChatGPT.", "")
+        response = response.replace("Which response do you prefer? Responses may take a moment to load.", "")
+        response = response.replace("Response 1", "")
+        response = response.replace("Response 2", "")
+        response = response.replace("Response 3", "")
+        response = response.replace("I prefer this response", "")
+    print(f"\r{response[13:]:<33}")
     n = n + 2
 
 
