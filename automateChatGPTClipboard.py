@@ -45,14 +45,16 @@ def get_prompt_response(prompt):
                 (By.CSS_SELECTOR, f"article[data-testid='conversation-turn-{n}']")
             )
         )
-        time.sleep(1)
         print(f"\rWaiting for response to end... ", end="")
+        while(len(response.text.split("\n")) <= 1):
+            time.sleep(1)
         while driver.find_elements(By.CSS_SELECTOR, "div.result-streaming"):
             time.sleep(0.25)
     except TimeoutException:
         n = n + 2
         return ""
     print(f"\rProcessing response...            ", end="")
+
     response = response.text
     if "You’re giving feedback on a new version of ChatGPT." in response:
         response = response.replace(
@@ -61,9 +63,15 @@ def get_prompt_response(prompt):
         response = response.replace(
             "Which response do you prefer? Responses may take a moment to load.", ""
         )
+        response = response.replace("Response 1", "")
+        response = response.replace("Response 2", "")
+        response = response.replace("Response 3", "")
         response = response.replace("I prefer this response", "")
     n = n + 2
-    return f"\r{response[13:]:<33}"
+    response = response.split("\n")
+    del response[0]
+    response = "{0}".format(".".join(response))
+    return f"{response:<33}"
 
 
 count = 0
@@ -90,10 +98,14 @@ class ClipboardWatcher(threading.Thread):
 
 
 def on_change(text):
-    print(f"\rProcessing prompt...                ", end="")
+    print(f"\rProcessing prompt...", end="")
     response = get_prompt_response(text)
-    pyperclip.copy(response)
-    print(f"\r{response:<100}", end="")
+    if pyperclip.is_available():
+        pyperclip.copy(response)
+        print(f"\rWARNING: {response}", end="")
+
+    else:
+        print(f"\r{response}", end="")
 
 
 def process_text(text: str):
@@ -111,6 +123,7 @@ def main():
         except KeyboardInterrupt:
             watcher.stop()
             break
+
 
 if __name__ == "__main__":
     main()

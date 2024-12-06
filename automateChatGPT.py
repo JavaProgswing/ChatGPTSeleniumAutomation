@@ -68,23 +68,33 @@ def print_prompt_response(prompt):
                 (By.CSS_SELECTOR, f"article[data-testid='conversation-turn-{n}']")
             )
         )
-        time.sleep(1)
-        while(driver.find_elements(By.CSS_SELECTOR, "div.result-streaming")):
+        while(len(response.text.split("\n")) <= 1):
+            time.sleep(1)
+        while (
+            driver.find_elements(By.CSS_SELECTOR, "div.result-streaming")
+        ):
             time.sleep(0.25)
     except TimeoutException:
         n = n + 2
         print("\rTimeout: ChatGPT did not respond in time!")
         return
-    
+
     response = response.text
     if "You’re giving feedback on a new version of ChatGPT." in response:
-        response = response.replace("You’re giving feedback on a new version of ChatGPT.", "")
-        response = response.replace("Which response do you prefer? Responses may take a moment to load.", "")
+        response = response.replace(
+            "You’re giving feedback on a new version of ChatGPT.", ""
+        )
+        response = response.replace(
+            "Which response do you prefer? Responses may take a moment to load.", ""
+        )
         response = response.replace("Response 1", "")
         response = response.replace("Response 2", "")
         response = response.replace("Response 3", "")
         response = response.replace("I prefer this response", "")
-    print(f"\r{response[13:]:<33}")
+    response = response.split("\n")
+    del response[0]
+    response = "{0}".format(".".join(response))
+    print(f"\r{response:<33}")
     n = n + 2
 
 
