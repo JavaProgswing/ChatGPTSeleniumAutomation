@@ -12,9 +12,7 @@ from selenium.common.exceptions import TimeoutException
 profile = profiles.Windows()
 options = webdriver.ChromeOptions()
 options.add_argument("--headless=new")
-options.binary_location = (
-    "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
-)
+
 driver = Chrome(
     profile,
     options=options,

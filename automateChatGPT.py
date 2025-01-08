@@ -21,10 +21,6 @@ profile = profiles.Windows()
 options = webdriver.ChromeOptions()
 if not show_browser:
     options.add_argument("--headless=new")
-options.binary_location = (
-    "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
-)
-# Change the browser binary location to the path of your browser
 
 driver = Chrome(
     profile,
@@ -68,11 +64,9 @@ def print_prompt_response(prompt):
                 (By.CSS_SELECTOR, f"article[data-testid='conversation-turn-{n}']")
             )
         )
-        while(len(response.text.split("\n")) <= 1):
+        while len(response.text.split("\n")) <= 1:
             time.sleep(1)
-        while (
-            driver.find_elements(By.CSS_SELECTOR, "div.result-streaming")
-        ):
+        while driver.find_elements(By.CSS_SELECTOR, "div.result-streaming"):
             time.sleep(0.25)
     except TimeoutException:
         n = n + 2
