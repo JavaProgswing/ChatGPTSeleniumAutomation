@@ -20,7 +20,7 @@ driver = Chrome(
 )
 
 driver.get("https://chatgpt.com")
-n = 3
+n = 2
 RESPONSE_TIMEOUT = 60
 
 
@@ -46,7 +46,7 @@ def get_prompt_response(prompt):
         print(f"\rWaiting for response to end... ", end="")
         while(len(response.text.split("\n")) <= 1):
             time.sleep(1)
-        while driver.find_elements(By.CSS_SELECTOR, "div.result-streaming"):
+        while driver.find_elements(By.CLASS_NAME, "streaming-animation"):
             time.sleep(0.25)
     except TimeoutException:
         n = n + 2

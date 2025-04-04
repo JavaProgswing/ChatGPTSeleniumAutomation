@@ -7,7 +7,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import time
 import argparse
+import os
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 parser = argparse.ArgumentParser(
     description="A script to automate ChatGPT using selenium hidden with selenium profiles."
 )
@@ -29,7 +31,7 @@ driver = Chrome(
 )
 
 driver.get("https://chatgpt.com")
-n = 3
+n = 2
 RESPONSE_TIMEOUT = 60  # Timeout for waiting for ChatGPT's response
 
 
@@ -65,8 +67,8 @@ def print_prompt_response(prompt):
             )
         )
         while len(response.text.split("\n")) <= 1:
-            time.sleep(1)
-        while driver.find_elements(By.CSS_SELECTOR, "div.result-streaming"):
+            time.sleep(0.5)
+        while driver.find_elements(By.CLASS_NAME, "streaming-animation"):
             time.sleep(0.25)
     except TimeoutException:
         n = n + 2
